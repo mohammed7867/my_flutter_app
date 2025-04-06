@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1097768085296",
+    "project_id": "chatbot-99c42",
+    "storage_bucket": "chatbot-99c42.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1097768085296:android:eadd58f9a4dc5e55064af5",
+        "android_client_info": {
+          "package_name": "com.example.my_flutter_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1097768085296-655f4mdtaqevbtpo9i47752g3c3j0ouj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmye_de-T7nZI5txGI2UhhsJ4TcVregJI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1097768085296-655f4mdtaqevbtpo9i47752g3c3j0ouj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
