@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:my_flutter_app/lib/services/api_service.dart';
 
 class Message {
   final String id;
@@ -52,7 +53,7 @@ class Conversation {
 
 class ChatProvider with ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final String apiUrl = 'http://your-backend-api-url.com/api';
+  final String apiUrl = 'http://z/api';
 
   String? _currentConversationId;
   List<Message> _messages = [];
@@ -95,6 +96,9 @@ class ChatProvider with ChangeNotifier {
         final botResponse = data['response'];
         final conversationId = data['conversation_id'];
 
+        print("✅ BOT RESPONSE: $botResponse");
+        print("📩 Conversation ID: $conversationId");
+
         // Update current conversation ID if needed
         if (_currentConversationId == null) {
           _currentConversationId = conversationId;
@@ -108,9 +112,11 @@ class ChatProvider with ChangeNotifier {
           timestamp: DateTime.now(),
         );
 
+
         _messages.add(botMessage);
         notifyListeners();
       } else {
+        print("❌ Backend Error ${response.statusCode}: ${response.body}");
         // Handle error
         final botMessage = Message(
           id: DateTime.now().millisecondsSinceEpoch.toString() + '_error',

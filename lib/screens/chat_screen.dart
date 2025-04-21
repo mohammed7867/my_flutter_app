@@ -4,6 +4,9 @@ import '../providers/auth_provider.dart';
 import '../providers/chat_provider.dart';
 import '../widgets/chat_message.dart';
 import '../widgets/new_message.dart';
+import 'package:my_flutter_app/lib/backend_test_screen.dart';
+import 'package:my_flutter_app/lib/services/api_service.dart';
+
 
 class ChatScreen extends StatefulWidget {
   @override
@@ -77,6 +80,10 @@ class _ChatScreenState extends State<ChatScreen> {
                 Navigator.of(context).pushNamed('/feedback');
               } else if (value == 'new') {
                 Provider.of<ChatProvider>(context, listen: false).startNewConversation();
+              }else if (value == 'test_backend') {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => BackendTestScreen()),
+                );
               }
             },
             itemBuilder: (ctx) => [
@@ -107,6 +114,16 @@ class _ChatScreenState extends State<ChatScreen> {
                     Icon(Icons.feedback, color: Colors.grey),
                     SizedBox(width: 8),
                     Text('Feedback'),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'test_backend',
+                child: Row(
+                  children: [
+                    Icon(Icons.bug_report, color: Colors.grey),
+                    SizedBox(width: 8),
+                    Text('Test Backend'),
                   ],
                 ),
               ),

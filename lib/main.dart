@@ -8,6 +8,8 @@ import 'screens/history_screen.dart';
 import 'screens/feedback_screen.dart';
 import 'providers/auth_provider.dart' as myAuth;
 import 'providers/chat_provider.dart';
+import 'lib/backend_test_screen.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -57,6 +59,7 @@ class MyApp extends StatelessWidget {
           '/chat': (ctx) => ChatScreen(),
           '/history': (ctx) => HistoryScreen(),
           '/feedback': (ctx) => FeedbackScreen(),
+          '/backend-test': (ctx) => BackendTestScreen(),
         },
       ),
     );
