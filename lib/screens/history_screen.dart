@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../providers/chat_provider.dart';
 
 class HistoryScreen extends StatefulWidget {
+  const HistoryScreen({super.key});
+
   @override
   _HistoryScreenState createState() => _HistoryScreenState();
 }
@@ -68,9 +70,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
               '${conversation.timestamp.day}/${conversation.timestamp.month}/${conversation.timestamp.year}',
             ),
             onTap: () async {
-              await Provider.of<ChatProvider>(context, listen: false).loadConversation(conversation.id);
-              Navigator.of(context).pop();
-            },
+    final chatProvider = Provider.of<ChatProvider>(context, listen: false);
+    await chatProvider.loadConversation(conversation.id);
+
+    // After loading, go back and rebuild ChatScreen
+    Navigator.of(context).pop();
+
+    // Force refresh UI after loading history
+    setState(() {}); // ADD THIS
+    }
           );
         },
       ),

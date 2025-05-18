@@ -3,12 +3,11 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:my_flutter_app/lib/services/api_service.dart';
 
 class Message {
   final String id;
   final String content;
-  final String role; // 'user' or 'assistant'
+  final String role;
   final DateTime timestamp;
 
   Message({
@@ -23,7 +22,7 @@ class Message {
       id: id,
       content: map['content'] ?? '',
       role: map['role'] ?? 'user',
-      timestamp: (map['timestamp'] as Timestamp).toDate(),
+      timestamp: DateTime.parse(map['timestamp']), // ✅ Fix here
     );
   }
 }
@@ -45,15 +44,16 @@ class Conversation {
     return Conversation(
       id: id,
       title: map['title'] ?? 'New Conversation',
-      timestamp: (map['timestamp'] as Timestamp).toDate(),
+      timestamp: DateTime.parse(map['timestamp']),
       preview: map['preview'] ?? '',
     );
   }
 }
 
+
 class ChatProvider with ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final String apiUrl = 'http://z/api';
+  final String apiUrl = 'http://192.168.1.11:8000/api';
 
   String? _currentConversationId;
   List<Message> _messages = [];
@@ -65,18 +65,15 @@ class ChatProvider with ChangeNotifier {
     try {
       final userId = FirebaseAuth.instance.currentUser!.uid;
 
-      // Add message to local list immediately for UI update
       final userMessage = Message(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         content: content,
         role: 'user',
         timestamp: DateTime.now(),
       );
-
       _messages.add(userMessage);
       notifyListeners();
 
-      // Send to backend
       final response = await http.post(
         Uri.parse('$apiUrl/query'),
         headers: {'Content-Type': 'application/json'},
@@ -95,50 +92,25 @@ class ChatProvider with ChangeNotifier {
         final data = json.decode(response.body);
         final botResponse = data['response'];
         final conversationId = data['conversation_id'];
+        _currentConversationId ??= conversationId;
 
-        print("✅ BOT RESPONSE: $botResponse");
-        print("📩 Conversation ID: $conversationId");
-
-        // Update current conversation ID if needed
-        if (_currentConversationId == null) {
-          _currentConversationId = conversationId;
-        }
-
-        // Add bot response to local list
-        final botMessage = Message(
-          id: DateTime.now().millisecondsSinceEpoch.toString() + '_bot',
+        _messages.add(Message(
+          id: '${DateTime.now().millisecondsSinceEpoch}_bot',
           content: botResponse,
           role: 'assistant',
           timestamp: DateTime.now(),
-        );
-
-
-        _messages.add(botMessage);
+        ));
         notifyListeners();
       } else {
-        print("❌ Backend Error ${response.statusCode}: ${response.body}");
-        // Handle error
-        final botMessage = Message(
-          id: DateTime.now().millisecondsSinceEpoch.toString() + '_error',
-          content: 'Sorry, I encountered an error processing your request.',
-          role: 'assistant',
-          timestamp: DateTime.now(),
-        );
-
-        _messages.add(botMessage);
-        notifyListeners();
+        throw Exception('Backend Error');
       }
     } catch (e) {
-      print('Error sending message: $e');
-      // Add error message
-      final botMessage = Message(
-        id: DateTime.now().millisecondsSinceEpoch.toString() + '_error',
+      _messages.add(Message(
+        id: '${DateTime.now().millisecondsSinceEpoch}_error',
         content: 'Sorry, I encountered an error processing your request.',
         role: 'assistant',
         timestamp: DateTime.now(),
-      );
-
-      _messages.add(botMessage);
+      ));
       notifyListeners();
     }
   }
@@ -150,14 +122,13 @@ class ChatProvider with ChangeNotifier {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final List<dynamic> conversations = data['conversations'];
-
-        return conversations.map((conv) => Conversation.fromMap(conv, conv['id'])).toList();
+        return (data['conversations'] as List)
+            .map((conv) => Conversation.fromMap(conv, conv['id']))
+            .toList();
       } else {
         throw Exception('Failed to load conversation history');
       }
     } catch (e) {
-      print('Error getting conversation history: $e');
       return [];
     }
   }
@@ -169,19 +140,51 @@ class ChatProvider with ChangeNotifier {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final List<dynamic> messagesData = data['messages'];
 
+        // 🛠 Fix: set _currentConversationId FIRST
         _currentConversationId = conversationId;
-        _messages = messagesData.map((msg) => Message.fromMap(msg, msg['id'])).toList();
+
+        // 🛠 Fix: parse messages properly
+        _messages = (data['messages'] as List).map((msg) {
+          return Message(
+            id: msg['id'],
+            content: msg['content'],
+            role: msg['role'],
+            timestamp: DateTime.parse(msg['timestamp']),  // Important!
+          );
+        }).toList();
+
         notifyListeners();
-      } else {
-        throw Exception('Failed to load conversation');
       }
     } catch (e) {
-      print('Error loading conversation: $e');
       _messages = [];
       notifyListeners();
     }
+  }
+
+
+  Future<List<Map<String, dynamic>>> fetchExamDates() async {
+    final response = await http.get(Uri.parse('$apiUrl/exam-dates'));
+    if (response.statusCode == 200) {
+      return List<Map<String, dynamic>>.from(json.decode(response.body)['exam_dates']);
+    }
+    return [];
+  }
+
+  Future<List<Map<String, dynamic>>> fetchAssignments() async {
+    final response = await http.get(Uri.parse('$apiUrl/assignments'));
+    if (response.statusCode == 200) {
+      return List<Map<String, dynamic>>.from(json.decode(response.body)['assignments']);
+    }
+    return [];
+  }
+
+  Future<List<String>> fetchSyllabusTopics(String department) async {
+    final response = await http.get(Uri.parse('$apiUrl/syllabus-topics/$department'));
+    if (response.statusCode == 200) {
+      return List<String>.from(json.decode(response.body)['topics']);
+    }
+    return [];
   }
 
   void startNewConversation() {

@@ -5,10 +5,10 @@ import '../providers/chat_provider.dart';
 import '../widgets/chat_message.dart';
 import '../widgets/new_message.dart';
 import 'package:my_flutter_app/lib/backend_test_screen.dart';
-import 'package:my_flutter_app/lib/services/api_service.dart';
-
 
 class ChatScreen extends StatefulWidget {
+  const ChatScreen({super.key});
+
   @override
   _ChatScreenState createState() => _ChatScreenState();
 }
@@ -60,10 +60,18 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  void _openFullScreenImage(String imagePath) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => FullScreenImage(imagePath: imagePath),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final messages = Provider.of<ChatProvider>(context).messages;
-
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
 
     return Scaffold(
@@ -80,7 +88,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 Navigator.of(context).pushNamed('/feedback');
               } else if (value == 'new') {
                 Provider.of<ChatProvider>(context, listen: false).startNewConversation();
-              }else if (value == 'test_backend') {
+              } else if (value == 'test_backend') {
                 Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => BackendTestScreen()),
                 );
@@ -144,6 +152,34 @@ class _ChatScreenState extends State<ChatScreen> {
       body: Container(
         child: Column(
           children: [
+            // 📚 Syllabus Section
+            Container(
+              height: 130,
+              padding: EdgeInsets.symmetric(vertical: 10),
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  SizedBox(width: 10),
+                  GestureDetector(
+                    onTap: () => _openFullScreenImage('assets/syllabus/syllabus1.jpg'),
+                    child: Image.asset('assets/syllabus/syllabus1.jpg', width: 110),
+                  ),
+                  SizedBox(width: 10),
+                  GestureDetector(
+                    onTap: () => _openFullScreenImage('assets/syllabus/syllabus2.jpg'),
+                    child: Image.asset('assets/syllabus/syllabus2.jpg', width: 110),
+                  ),
+                  SizedBox(width: 10),
+                  GestureDetector(
+                    onTap: () => _openFullScreenImage('assets/syllabus/syllabus3.jpg'),
+                    child: Image.asset('assets/syllabus/syllabus3.jpg', width: 110),
+                  ),
+                  SizedBox(width: 10),
+                ],
+              ),
+            ),
+
+            // 💬 Chat Section
             Expanded(
               child: _isLoading
                   ? Center(child: CircularProgressIndicator())
@@ -154,10 +190,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   children: [
                     Text(
                       'Welcome, $_userName!',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     SizedBox(height: 10),
                     Text(
@@ -177,6 +210,25 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             NewMessage(),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+// 📸 Full Screen Image Screen
+class FullScreenImage extends StatelessWidget {
+  final String imagePath;
+
+  const FullScreenImage({required this.imagePath});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Syllabus Image')),
+      body: Center(
+        child: InteractiveViewer(
+          child: Image.asset(imagePath),
         ),
       ),
     );

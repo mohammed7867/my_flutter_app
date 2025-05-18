@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../providers/chat_provider.dart';
 
 class NewMessage extends StatefulWidget {
+  const NewMessage({super.key});
+
   @override
   _NewMessageState createState() => _NewMessageState();
 }

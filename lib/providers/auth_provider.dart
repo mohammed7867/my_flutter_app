@@ -19,7 +19,7 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
       return userCredential;
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 
@@ -42,7 +42,7 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
       return userCredential;
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 
@@ -72,7 +72,7 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
       return userCredential;
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 

@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 
 class AuthForm extends StatefulWidget {
+  const AuthForm({super.key});
+
   @override
   _AuthFormState createState() => _AuthFormState();
 }
@@ -202,14 +204,17 @@ class _AuthFormState extends State<AuthForm> {
                       children: [
                         ElevatedButton(
                           onPressed: _submit,
-                          child: Text(_isLogin ? 'Login' : 'Sign Up'),
                           style: ElevatedButton.styleFrom(
                             minimumSize: Size(double.infinity, 50),
                           ),
+                          child: Text(_isLogin ? 'Login' : 'Sign Up'),
                         ),
                         SizedBox(height: 10),
                         OutlinedButton(
                           onPressed: _signInWithGoogle,
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: Size(double.infinity, 50),
+                          ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -220,9 +225,6 @@ class _AuthFormState extends State<AuthForm> {
                               SizedBox(width: 10),
                               Text('Sign in with Google'),
                             ],
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            minimumSize: Size(double.infinity, 50),
                           ),
                         ),
                         TextButton(
